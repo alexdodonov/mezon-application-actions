@@ -7,3 +7,9 @@ Just print in console
 ```
 composer require mezon/application-actions
 ```
+
+And that's all.
+
+## Usage
+
+This class provides methods for simple addition of endpoints to the classes derived from \Mezon\Application

@@ -99,7 +99,11 @@ class ApplicationActions
      * @param string|array $method
      *            HTTP method name GET or POST
      */
-    protected function loadRoute(\Mezon\Application\CommonApplicationInterface &$appObject, string $route, string $callback, $method): void
+    protected function loadRoute(
+        \Mezon\Application\CommonApplicationInterface &$appObject,
+        string $route,
+        string $callback,
+        $method): void
     {
         $appObject->loadRoute([
             'route' => $route,
@@ -125,7 +129,9 @@ class ApplicationActions
         }
 
         // create list builder
-        return new \Mezon\Gui\ListBuilder\ListBuilder(explode(',', $options['default-fields']), $crudServiceClientAdapter);
+        return new \Mezon\Gui\ListBuilder\ListBuilder(
+            explode(',', $options['default-fields']),
+            $crudServiceClientAdapter);
     }
 
     /**
@@ -255,7 +261,7 @@ class ApplicationActions
         } else {
             $result = [
                 'main' => $formBuilder->updatingForm(
-                    $this->crudServiceClient->getSessionId(),
+                    $this->crudServiceClient->getToken(),
                     $this->crudServiceClient->getById($id, $this->getSelfId()))
             ];
         }
