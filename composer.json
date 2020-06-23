@@ -29,5 +29,8 @@
 		"psr-4": {
 			"Mezon\\Application\\": ""
 		}
+	},
+	"scripts": {
+		"test": "php ./vendor/phpunit/phpunit/phpunit"
 	}
 }
