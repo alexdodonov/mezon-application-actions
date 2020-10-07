@@ -1,6 +1,14 @@
 <?php
 namespace Mezon\Application;
 
+use Mezon\CrudService\CrudServiceClient;
+use Mezon\CrudService\CrudServiceClientInterface;
+use Mezon\Gui\ListBuilder\ListBuilder;
+use Mezon\Functional\Fetcher;
+use Mezon\Gui\FieldsAlgorithms;
+use Mezon\Gui\FormBuilder\FormBuilder;
+use Mezon\Gui\ListBuilder\CrudServiceClientAdapter;
+
 /**
  * Class ApplicationActions
  *
@@ -46,7 +54,7 @@ class ApplicationActions
     /**
      * Service client
      *
-     * @var \Mezon\CrudService\CrudServiceClient
+     * @var CrudServiceClient
      */
     protected $crudServiceClient = null;
 
@@ -62,7 +70,7 @@ class ApplicationActions
      */
     public function __construct(string $entityName, string $login = '', string $password = '')
     {
-        $this->crudServiceClient = new \Mezon\CrudService\CrudServiceClient($entityName, $login, $password);
+        $this->crudServiceClient = new CrudServiceClient($entityName, $login, $password);
 
         $this->entityName = $entityName;
 
@@ -78,7 +86,7 @@ class ApplicationActions
      *            Application object
      * @return array Compiled view
      */
-    protected function addPageParts(array $result, \Mezon\Application\CommonApplicationInterface &$appObject): array
+    protected function addPageParts(array $result, CommonApplicationInterface &$appObject): array
     {
         if (method_exists($appObject, 'crossRender')) {
             $result = array_merge($result, $appObject->crossRender());
@@ -90,7 +98,7 @@ class ApplicationActions
     /**
      * Method adds end-point for list displaying to the application object
      *
-     * @param \Mezon\Application\CommonApplicationInterface $appObject
+     * @param CommonApplicationInterface $appObject
      *            CommonApplicationInterface object
      * @param string $route
      *            Route
@@ -99,11 +107,7 @@ class ApplicationActions
      * @param string|array $method
      *            HTTP method name GET or POST
      */
-    protected function loadRoute(
-        \Mezon\Application\CommonApplicationInterface &$appObject,
-        string $route,
-        string $callback,
-        $method): void
+    protected function loadRoute(CommonApplicationInterface &$appObject, string $route, string $callback, $method): void
     {
         $appObject->loadRoute([
             'route' => $route,
@@ -116,12 +120,12 @@ class ApplicationActions
      * List builder creation function
      *
      * @param array $options
-     * @return \Mezon\Gui\ListBuilder\ListBuilder
+     * @return ListBuilder
      */
-    protected function createListBuilder(array $options): \Mezon\Gui\ListBuilder\ListBuilder
+    protected function createListBuilder(array $options): ListBuilder
     {
         // create adapter
-        $crudServiceClientAdapter = new \Mezon\Gui\ListBuilder\CrudServiceClientAdapter();
+        $crudServiceClientAdapter = new CrudServiceClientAdapter();
         $crudServiceClientAdapter->setClient($this->crudServiceClient);
 
         if (isset($options['default-fields']) === false) {
@@ -129,20 +133,18 @@ class ApplicationActions
         }
 
         // create list builder
-        return new \Mezon\Gui\ListBuilder\ListBuilder(
-            explode(',', $options['default-fields']),
-            $crudServiceClientAdapter);
+        return new ListBuilder(explode(',', $options['default-fields']), $crudServiceClientAdapter);
     }
 
     /**
      * Method adds end-point for list displaying to the application object
      *
-     * @param \Mezon\Application\CommonApplicationInterface $appObject
+     * @param CommonApplicationInterface $appObject
      *            CommonApplicationInterface object
      * @param array $options
      *            Options
      */
-    public function attachListPage(\Mezon\Application\CommonApplicationInterface &$appObject, array $options): void
+    public function attachListPage(CommonApplicationInterface &$appObject, array $options): void
     {
         $methodName = $this->safeEntityName . 'ListingPage';
 
@@ -172,12 +174,12 @@ class ApplicationActions
     /**
      * Method adds end-point for list displaying to the application object
      *
-     * @param \Mezon\Application\CommonApplicationInterface $appObject
+     * @param CommonApplicationInterface $appObject
      *            CommonApplicationInterface object
      * @param array $options
      *            Options
      */
-    public function attachSimpleListPage(\Mezon\Application\CommonApplicationInterface $appObject, array $options): void
+    public function attachSimpleListPage(CommonApplicationInterface $appObject, array $options): void
     {
         $methodName = $this->safeEntityName . 'SimpleListingPage';
 
@@ -203,12 +205,12 @@ class ApplicationActions
     /**
      * Method adds end-point for deleting record to the application object
      *
-     * @param \Mezon\Application\CommonApplicationInterface $appObject
+     * @param CommonApplicationInterface $appObject
      *            CommonApplicationInterface object
      * @param array $options
      *            Options
      */
-    public function attachDeleteRecord(\Mezon\Application\CommonApplicationInterface &$appObject, array $options): void
+    public function attachDeleteRecord(CommonApplicationInterface &$appObject, array $options): void
     {
         $this->DeleteButton = true;
 
@@ -242,16 +244,10 @@ class ApplicationActions
         $data = $this->crudServiceClient->getRemoteCreationFormFields();
 
         // construct $fieldsAlgorithms
-        $fieldsAlgorithms = new \Mezon\Gui\FieldsAlgorithms(
-            \Mezon\Functional\Functional::getField($data, 'fields'),
-            $this->entityName);
+        $fieldsAlgorithms = new FieldsAlgorithms(Fetcher::getField($data, 'fields'), $this->entityName);
 
         // create form builder object
-        $formBuilder = new \Mezon\Gui\FormBuilder(
-            $fieldsAlgorithms,
-            false,
-            $this->entityName,
-            \Mezon\Functional\Functional::getField($data, 'layout'));
+        $formBuilder = new FormBuilder($fieldsAlgorithms, false, $this->entityName, Fetcher::getField($data, 'layout'));
 
         // compile form
         if ($type == 'creation') {
@@ -272,17 +268,17 @@ class ApplicationActions
     /**
      * Method gets create record controller for the remote service
      *
-     * @param \Mezon\Application\CommonApplicationInterface $appObject
+     * @param CommonApplicationInterface $appObject
      *            CommonApplicationInterface object
      * @param array $options
      *            Options
      */
-    protected function addCreateRecordMethod(\Mezon\Application\CommonApplicationInterface &$appObject, array $options): void
+    protected function addCreateRecordMethod(CommonApplicationInterface &$appObject, array $options): void
     {
         $methodName = $this->safeEntityName . 'CreateRecord';
 
         $appObject->$methodName = function () use ($appObject, $options) {
-            if (count($_POST) > 0) {
+            if (! empty($_POST)) {
                 $_POST[FIELD_NAME_DOMAIN_ID] = $this->getSelfId();
 
                 $data = $this->pretransformData(array_merge($_POST, $_FILES));
@@ -299,12 +295,12 @@ class ApplicationActions
     /**
      * Method adds end-point for creating record to the application object
      *
-     * @param \Mezon\Application\CommonApplicationInterface $appObject
+     * @param CommonApplicationInterface $appObject
      *            CommonApplicationInterface object
      * @param array $options
      *            Options
      */
-    public function attachCreateRecord(\Mezon\Application\CommonApplicationInterface &$appObject, array $options): void
+    public function attachCreateRecord(CommonApplicationInterface &$appObject, array $options): void
     {
         $this->CreateButton = true;
 
@@ -324,17 +320,17 @@ class ApplicationActions
     /**
      * Method gets update record controller for the remote service.
      *
-     * @param \Mezon\Application\CommonApplicationInterface $appObject
+     * @param CommonApplicationInterface $appObject
      *            CommonApplicationInterface object
      * @param array $options
      *            Options
      */
-    protected function addUpdateRecordMethod(\Mezon\Application\CommonApplicationInterface &$appObject, array $options): void
+    protected function addUpdateRecordMethod(CommonApplicationInterface &$appObject, array $options): void
     {
         $methodName = $this->safeEntityName . 'UpdateRecord';
 
         $appObject->$methodName = function (...$params) use ($appObject, $options) {
-            if (count($_POST) > 0) {
+            if (! empty($_POST)) {
                 $_POST[FIELD_NAME_DOMAIN_ID] = $this->getSelfId();
 
                 $this->postRequest('/update/' . $params[1]['id'] . '/', $_POST);
@@ -351,12 +347,12 @@ class ApplicationActions
     /**
      * Method adds end-point for updating record to the application object
      *
-     * @param \Mezon\Application\CommonApplicationInterface $appObject
+     * @param CommonApplicationInterface $appObject
      *            CommonApplicationInterface object
      * @param array $options
      *            Options
      */
-    public function attachUpdateRecord(\Mezon\Application\CommonApplicationInterface &$appObject, array $options): void
+    public function attachUpdateRecord(CommonApplicationInterface &$appObject, array $options): void
     {
         $this->UpdateButton = true;
 
@@ -376,10 +372,10 @@ class ApplicationActions
     /**
      * Method sets service client
      *
-     * @param \Mezon\CrudService\CrudServiceClientInterface $crudServiceClient
+     * @param CrudServiceClientInterface $crudServiceClient
      *            CRUD service client
      */
-    public function setServiceClient(\Mezon\CrudService\CrudServiceClientInterface $crudServiceClient): void
+    public function setServiceClient(CrudServiceClientInterface $crudServiceClient): void
     {
         $this->crudServiceClient = $crudServiceClient;
     }
