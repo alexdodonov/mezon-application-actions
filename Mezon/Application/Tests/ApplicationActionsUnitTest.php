@@ -9,6 +9,19 @@ class ApplicationActionsUnitTest extends TestCase
 {
 
     /**
+     * Method returns testing record
+     *
+     * @return object testing record
+     */
+    private function getRecord(): object
+    {
+        $record = new \stdClass();
+        $record->id = 1;
+        $record->title = 'record title';
+        return $record;
+    }
+
+    /**
      * Creating mock of the application actions
      *
      * @return object Application actions
@@ -28,9 +41,7 @@ class ApplicationActionsUnitTest extends TestCase
             ->getMock();
 
         $crudServiceClient->method('getList')->willReturn([
-            [
-                'id' => 1
-            ]
+            $this->getRecord()
         ]);
 
         $crudServiceClient->method('delete')->willReturn('');
