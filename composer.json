@@ -17,6 +17,11 @@
 		"mezon/gui" : "^1.0.0",
 		"mezon/filter": "^1.0"
 	},
+	"require-dev": {
+		"phpunit/phpunit": "^8.5",
+		"phpunit/php-token-stream": "3.1.2",
+        "vimeo/psalm": "^4.2"
+	},
 	"support": {
 		"email": "alexey@dodonov.pro",
 		"issues": "https://github.com/alexdodonov/mezon-application-actions/issues",

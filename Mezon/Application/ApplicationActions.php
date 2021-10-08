@@ -281,9 +281,7 @@ class ApplicationActions
             if (! empty($_POST)) {
                 $_POST[FIELD_NAME_DOMAIN_ID] = $this->getSelfId();
 
-                $data = $this->pretransformData(array_merge($_POST, $_FILES));
-
-                $this->crudServiceClient->create($data);
+                $this->crudServiceClient->create(array_merge($_POST, $_FILES));
 
                 $appObject->redirectTo('../list/');
             } else {
