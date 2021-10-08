@@ -28,25 +28,8 @@ class ApplicationActionsUnitTest extends TestCase
      */
     protected function getApplicationActions(): object
     {
-        $object = new TestApplicationActions('entity');
-
-        $crudServiceClient = $this->getMockBuilder(CrudServiceClient::class)
-            ->setMethods([
-            'getList',
-            'delete',
-            'getRemoteCreationFormFields',
-            'getById'
-        ])
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $crudServiceClient->method('getList')->willReturn([
-            $this->getRecord()
-        ]);
-
-        $crudServiceClient->method('delete')->willReturn('');
-
-        $crudServiceClient->method('getRemoteCreationFormFields')->willReturn(
+        $object = new TestApplicationActions(
+            'entity',
             [
                 'fields' => [
                     'id' => [
@@ -56,6 +39,23 @@ class ApplicationActionsUnitTest extends TestCase
                 ],
                 'layout' => []
             ]);
+
+        $crudServiceClient = $this->getMockBuilder(CrudServiceClient::class)
+            ->onlyMethods([
+            'getList',
+            'delete',
+            'getById'
+        ])
+            ->setConstructorArgs([
+            'entity'
+        ])
+            ->getMock();
+
+        $crudServiceClient->method('getList')->willReturn([
+            $this->getRecord()
+        ]);
+
+        $crudServiceClient->method('delete')->willReturn('');
 
         $crudServiceClient->method('getById')->willReturn([
             'id' => 1,

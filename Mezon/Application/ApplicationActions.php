@@ -59,20 +59,31 @@ class ApplicationActions
     protected $crudServiceClient = null;
 
     /**
+     * Fields
+     *
+     * @var array
+     */
+    private $fields = [];
+
+    /**
      * Constructor
      *
      * @param string $entityName
-     *            Entity name
+     *            entity name
+     * @param array $fields
+     *            fields description
      * @param string $login
-     *            Login
+     *            login
      * @param string $password
-     *            Password
+     *            password
      */
-    public function __construct(string $entityName, string $login = '', string $password = '')
+    public function __construct(string $entityName, array $fields, string $login = '', string $password = '')
     {
         $this->crudServiceClient = new CrudServiceClient($entityName, $login, $password);
 
         $this->entityName = $entityName;
+
+        $this->fields = $fields;
 
         $this->safeEntityName = str_replace('-', '_', $entityName);
     }
@@ -240,14 +251,15 @@ class ApplicationActions
      */
     protected function getCompiledForm(string $type = 'creation', int $id = 0): array
     {
-        // get fields
-        $data = $this->crudServiceClient->getRemoteCreationFormFields();
-
         // construct $fieldsAlgorithms
-        $fieldsAlgorithms = new FieldsAlgorithms(Fetcher::getField($data, 'fields'), $this->entityName);
+        $fieldsAlgorithms = new FieldsAlgorithms(Fetcher::getField($this->fields, 'fields'), $this->entityName);
 
         // create form builder object
-        $formBuilder = new FormBuilder($fieldsAlgorithms, false, $this->entityName, Fetcher::getField($data, 'layout'));
+        $formBuilder = new FormBuilder(
+            $fieldsAlgorithms,
+            false,
+            $this->entityName,
+            Fetcher::getField($this->fields, 'layout'));
 
         // compile form
         if ($type == 'creation') {
