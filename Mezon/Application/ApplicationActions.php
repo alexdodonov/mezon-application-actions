@@ -343,8 +343,6 @@ class ApplicationActions
             if (! empty($_POST)) {
                 $_POST[FIELD_NAME_DOMAIN_ID] = $this->getSelfId();
 
-                $this->postRequest('/update/' . $params[1]['id'] . '/', $_POST);
-
                 $this->crudServiceClient->update($params[1]['id'], $_POST, $_POST[FIELD_NAME_DOMAIN_ID]);
 
                 $appObject->redirectTo('../../list/');

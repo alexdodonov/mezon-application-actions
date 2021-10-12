@@ -44,7 +44,9 @@ class ApplicationActionsUnitTest extends TestCase
             ->onlyMethods([
             'getList',
             'delete',
-            'getById'
+            'getById',
+            'update',
+            'create'
         ])
             ->setConstructorArgs([
             'entity'
@@ -74,6 +76,9 @@ class ApplicationActionsUnitTest extends TestCase
     {
         DnsClient::clear();
         DnsClient::setService('entity', 'http://entity.local/');
+        if (isset($_POST)) {
+            unset($_POST);
+        }
     }
 
     /**
@@ -171,7 +176,7 @@ class ApplicationActionsUnitTest extends TestCase
         $result = $application->entityCreateRecord();
 
         // assertions
-        $this->assertStringContainsString('x_title', $result['main'], 'Method "entityCreateRecord" does not exist');
+        $this->assertStringContainsString('x_panel', $result['main']);
     }
 
     /**
@@ -190,6 +195,6 @@ class ApplicationActionsUnitTest extends TestCase
         ]);
 
         // assertions
-        $this->assertStringContainsString('x_title', $result['main'], 'Method "entityUpdateRecord" does not exist');
+        $this->assertStringContainsString('x_panel', $result['main']);
     }
 }
