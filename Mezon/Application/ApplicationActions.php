@@ -8,6 +8,8 @@ use Mezon\Functional\Fetcher;
 use Mezon\Gui\FieldsAlgorithms;
 use Mezon\Gui\FormBuilder\FormBuilder;
 use Mezon\Gui\ListBuilder\CrudServiceClientAdapter;
+use Mezon\Gui\ListBuilder\Common;
+use Mezon\Gui\ListBuilder\Simple;
 
 /**
  * Class ApplicationActions
@@ -131,9 +133,9 @@ class ApplicationActions
      * List builder creation function
      *
      * @param array $options
-     * @return ListBuilder
+     * @return Common
      */
-    protected function createListBuilder(array $options): ListBuilder
+    protected function createCommonListBuilder(array $options): Common
     {
         // create adapter
         $crudServiceClientAdapter = new CrudServiceClientAdapter();
@@ -144,7 +146,27 @@ class ApplicationActions
         }
 
         // create list builder
-        return new ListBuilder(explode(',', $options['default-fields']), $crudServiceClientAdapter);
+        return new Common(explode(',', $options['default-fields']), $crudServiceClientAdapter);
+    }
+    
+    /**
+     * List builder creation function
+     *
+     * @param array $options
+     * @return Simple
+     */
+    protected function createSimpleListBuilder(array $options): Simple
+    {
+        // create adapter
+        $crudServiceClientAdapter = new CrudServiceClientAdapter();
+        $crudServiceClientAdapter->setClient($this->crudServiceClient);
+        
+        if (isset($options['default-fields']) === false) {
+            throw (new \Exception('List of fields must be defined in the $options[\'default-fields\']', - 1));
+        }
+        
+        // create list builder
+        return new Simple(explode(',', $options['default-fields']), $crudServiceClientAdapter);
     }
 
     /**
@@ -170,7 +192,7 @@ class ApplicationActions
         $options[FIELD_NAME_DOMAIN_ID] = $this->getSelfId();
 
         $appObject->$methodName = function () use ($appObject, $options) {
-            $listBuilder = $this->createListBuilder($options);
+            $listBuilder = $this->createCommonListBuilder($options);
 
             // generate list
             $result = [
@@ -201,11 +223,11 @@ class ApplicationActions
         $options[FIELD_NAME_DOMAIN_ID] = $this->getSelfId();
 
         $appObject->$methodName = function () use ($appObject, $options) {
-            $listBuilder = $this->createListBuilder($options);
+            $listBuilder = $this->createSimpleListBuilder($options);
 
             // generate list
             $result = [
-                'main' => $listBuilder->simpleListingForm()
+                'main' => $listBuilder->listingForm()
             ];
 
             // add page parts
