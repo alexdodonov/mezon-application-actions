@@ -3,7 +3,6 @@ namespace Mezon\Application;
 
 use Mezon\CrudService\CrudServiceClient;
 use Mezon\CrudService\CrudServiceClientInterface;
-use Mezon\Gui\ListBuilder\ListBuilder;
 use Mezon\Functional\Fetcher;
 use Mezon\Gui\FieldsAlgorithms;
 use Mezon\Gui\FormBuilder\FormBuilder;
@@ -81,8 +80,6 @@ class ApplicationActions
      */
     public function __construct(string $entityName, array $fields, string $login = '', string $password = '')
     {
-        $this->crudServiceClient = new CrudServiceClient($entityName, $login, $password);
-
         $this->entityName = $entityName;
 
         $this->fields = $fields;
@@ -94,12 +91,12 @@ class ApplicationActions
      * Method adds page parts to the result
      *
      * @param array $result
-     *            View generation result
-     * @param \Mezon\Application\CommonApplicationInterface $appObject
-     *            Application object
-     * @return array Compiled view
+     *            view generation result
+     * @param CommonApplicationInterface $appObject
+     *            application object
+     * @return array compiled view
      */
-    protected function addPageParts(array $result, CommonApplicationInterface &$appObject): array
+    private function addPageParts(array $result, CommonApplicationInterface &$appObject): array
     {
         if (method_exists($appObject, 'crossRender')) {
             $result = array_merge($result, $appObject->crossRender());
@@ -114,13 +111,13 @@ class ApplicationActions
      * @param CommonApplicationInterface $appObject
      *            CommonApplicationInterface object
      * @param string $route
-     *            Route
+     *            route
      * @param string $callback
-     *            Callback name
+     *            callback name
      * @param string|array $method
      *            HTTP method name GET or POST
      */
-    protected function loadRoute(CommonApplicationInterface &$appObject, string $route, string $callback, $method): void
+    private function loadRoute(CommonApplicationInterface &$appObject, string $route, string $callback, $method): void
     {
         $appObject->loadRoute([
             'route' => $route,
@@ -133,9 +130,9 @@ class ApplicationActions
      * List builder creation function
      *
      * @param array $options
-     * @return Common
+     * @return Common list builder
      */
-    protected function createCommonListBuilder(array $options): Common
+    private function createCommonListBuilder(array $options): Common
     {
         // create adapter
         $crudServiceClientAdapter = new CrudServiceClientAdapter();
@@ -148,23 +145,23 @@ class ApplicationActions
         // create list builder
         return new Common(explode(',', $options['default-fields']), $crudServiceClientAdapter);
     }
-    
+
     /**
      * List builder creation function
      *
      * @param array $options
-     * @return Simple
+     * @return Simple list
      */
-    protected function createSimpleListBuilder(array $options): Simple
+    private function createSimpleListBuilder(array $options): Simple
     {
         // create adapter
         $crudServiceClientAdapter = new CrudServiceClientAdapter();
         $crudServiceClientAdapter->setClient($this->crudServiceClient);
-        
+
         if (isset($options['default-fields']) === false) {
             throw (new \Exception('List of fields must be defined in the $options[\'default-fields\']', - 1));
         }
-        
+
         // create list builder
         return new Simple(explode(',', $options['default-fields']), $crudServiceClientAdapter);
     }
@@ -175,7 +172,7 @@ class ApplicationActions
      * @param CommonApplicationInterface $appObject
      *            CommonApplicationInterface object
      * @param array $options
-     *            Options
+     *            options
      */
     public function attachListPage(CommonApplicationInterface &$appObject, array $options): void
     {
@@ -210,7 +207,7 @@ class ApplicationActions
      * @param CommonApplicationInterface $appObject
      *            CommonApplicationInterface object
      * @param array $options
-     *            Options
+     *            options
      */
     public function attachSimpleListPage(CommonApplicationInterface $appObject, array $options): void
     {
@@ -241,11 +238,11 @@ class ApplicationActions
      * @param CommonApplicationInterface $appObject
      *            CommonApplicationInterface object
      * @param array $options
-     *            Options
+     *            options
      */
     public function attachDeleteRecord(CommonApplicationInterface &$appObject, array $options): void
     {
-        $this->DeleteButton = true;
+        $this->deleteButton = true;
 
         $methodName = $this->safeEntityName . 'DeleteRecord';
 
@@ -266,12 +263,12 @@ class ApplicationActions
      * Generating form
      *
      * @param string $type
-     *            Form type
+     *            form type
      * @param int $id
      *            id of the updating record
-     * @return array Compiled result
+     * @return array compiled result
      */
-    protected function getCompiledForm(string $type = 'creation', int $id = 0): array
+    private function getCompiledForm(string $type = 'creation', int $id = 0): array
     {
         // construct $fieldsAlgorithms
         $fieldsAlgorithms = new FieldsAlgorithms(Fetcher::getField($this->fields, 'fields'), $this->entityName);
@@ -305,9 +302,9 @@ class ApplicationActions
      * @param CommonApplicationInterface $appObject
      *            CommonApplicationInterface object
      * @param array $options
-     *            Options
+     *            options
      */
-    protected function addCreateRecordMethod(CommonApplicationInterface &$appObject, array $options): void
+    private function addCreateRecordMethod(CommonApplicationInterface &$appObject, array $options): void
     {
         $methodName = $this->safeEntityName . 'CreateRecord';
 
@@ -330,11 +327,11 @@ class ApplicationActions
      * @param CommonApplicationInterface $appObject
      *            CommonApplicationInterface object
      * @param array $options
-     *            Options
+     *            options
      */
     public function attachCreateRecord(CommonApplicationInterface &$appObject, array $options): void
     {
-        $this->CreateButton = true;
+        $this->createButton = true;
 
         $options = $options === false ? [] : $options;
 
@@ -355,9 +352,9 @@ class ApplicationActions
      * @param CommonApplicationInterface $appObject
      *            CommonApplicationInterface object
      * @param array $options
-     *            Options
+     *            options
      */
-    protected function addUpdateRecordMethod(CommonApplicationInterface &$appObject, array $options): void
+    private function addUpdateRecordMethod(CommonApplicationInterface &$appObject, array $options): void
     {
         $methodName = $this->safeEntityName . 'UpdateRecord';
 
@@ -380,11 +377,11 @@ class ApplicationActions
      * @param CommonApplicationInterface $appObject
      *            CommonApplicationInterface object
      * @param array $options
-     *            Options
+     *            options
      */
     public function attachUpdateRecord(CommonApplicationInterface &$appObject, array $options): void
     {
-        $this->UpdateButton = true;
+        $this->updateButton = true;
 
         $options = $options === false ? [] : $options;
 

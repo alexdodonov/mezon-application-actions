@@ -1,12 +1,15 @@
 <?php
 namespace Mezon\Application\Tests;
 
+use Mezon\Application\CommonApplicationInterface;
+use Mezon\Redirect\Layer;
+
 /**
  * Test application
  *
  * @author Dodonov A.A.
  */
-class TestExtendingApplication implements \Mezon\Application\CommonApplicationInterface
+class TestExtendingApplication implements CommonApplicationInterface
 {
 
     /**
@@ -16,7 +19,9 @@ class TestExtendingApplication implements \Mezon\Application\CommonApplicationIn
      */
     public function crossRender(): array
     {
-        return [];
+        return [
+            'part' => 'part'
+        ];
     }
 
     /**
@@ -31,14 +36,15 @@ class TestExtendingApplication implements \Mezon\Application\CommonApplicationIn
      * Allowing to call methods added on the fly
      *
      * @param string $method
-     *            Method to be called
+     *            method to be called
      * @param array $args
-     *            Arguments
-     * @return mixed Result of the call
+     *            arguments
+     * @return mixed result of the call
      */
     public function __call(string $method, array $args)
     {
         if (isset($this->$method)) {
+            /** @var callable $function */
             $function = $this->$method;
 
             return call_user_func_array($function, $args);
@@ -51,8 +57,10 @@ class TestExtendingApplication implements \Mezon\Application\CommonApplicationIn
      * Method redirects user to another page
      *
      * @param string $url
-     *            New page
+     *            page to redirect to
      */
     public function redirectTo($url): void
-    {}
+    {
+        Layer::redirectTo($url);
+    }
 }

@@ -1,7 +1,9 @@
 <?php
 namespace Mezon\Application\Tests;
 
-class TestApplicationActions extends \Mezon\Application\ApplicationActions
+use Mezon\Application\ApplicationActions;
+
+class TestApplicationActions extends ApplicationActions
 {
 
     public function getSelfId(): string

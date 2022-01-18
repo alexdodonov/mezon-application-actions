@@ -4,6 +4,8 @@ namespace Mezon\Application\Tests;
 use Mezon\CrudService\CrudServiceClient;
 use Mezon\DnsClient\DnsClient;
 use PHPUnit\Framework\TestCase;
+use Mezon\Redirect\Layer;
+use Mezon\Conf\Conf;
 
 class ApplicationActionsUnitTest extends TestCase
 {
@@ -26,7 +28,7 @@ class ApplicationActionsUnitTest extends TestCase
      *
      * @return object Application actions
      */
-    protected function getApplicationActions(): object
+    protected function getApplicationActionsMock(): object
     {
         $object = new TestApplicationActions(
             'entity',
@@ -79,6 +81,8 @@ class ApplicationActionsUnitTest extends TestCase
         if (isset($_POST)) {
             unset($_POST);
         }
+        Layer::$redirectWasPerformed = false;
+        Conf::setConfigStringValue('redirect/layer', 'mock');
     }
 
     /**
@@ -87,7 +91,7 @@ class ApplicationActionsUnitTest extends TestCase
     public function testAttachListPageMthodInvalid(): void
     {
         // setup
-        $object = $this->getApplicationActions();
+        $object = $this->getApplicationActionsMock();
 
         $application = new TestExtendingApplication();
 
@@ -104,7 +108,7 @@ class ApplicationActionsUnitTest extends TestCase
     public function testAttachListPageMethod(): void
     {
         // setup
-        $object = $this->getApplicationActions();
+        $object = $this->getApplicationActionsMock();
 
         $application = new TestExtendingApplication();
 
@@ -122,33 +126,12 @@ class ApplicationActionsUnitTest extends TestCase
     }
 
     /**
-     * Testing attaching simple list method
-     */
-    public function testAttachSimpleListPageMethod(): void
-    {
-        // setup
-        $object = $this->getApplicationActions();
-        $application = new TestExtendingApplication();
-
-        // test body
-        $object->attachSimpleListPage($application, [
-            'default-fields' => 'id'
-        ]);
-        $application->entitySimpleListingPage();
-
-        // assertions
-        $this->assertTrue(
-            isset($application->entitySimpleListingPage),
-            'Method "entitySimpleListingPage" does not exist');
-    }
-
-    /**
      * Testing attaching delete method
      */
     public function testAttachDeleteMethod(): void
     {
         // setup
-        $object = $this->getApplicationActions();
+        $object = $this->getApplicationActionsMock();
         $application = new TestExtendingApplication();
 
         // test body
@@ -160,41 +143,5 @@ class ApplicationActionsUnitTest extends TestCase
 
         // assertions
         $this->assertTrue(isset($application->entityDeleteRecord), 'Method "entityDeleteRecord" does not exist');
-    }
-
-    /**
-     * Testing attaching create method
-     */
-    public function testAttachCreateMethod(): void
-    {
-        // setup
-        $object = $this->getApplicationActions();
-        $application = new TestExtendingApplication();
-
-        // test body
-        $object->attachCreateRecord($application, []);
-        $result = $application->entityCreateRecord();
-
-        // assertions
-        $this->assertStringContainsString('x_panel', $result['main']);
-    }
-
-    /**
-     * Testing attaching update method
-     */
-    public function testAttachUpdateMethod(): void
-    {
-        // setup
-        $object = $this->getApplicationActions();
-        $application = new TestExtendingApplication();
-
-        // test body
-        $object->attachUpdateRecord($application, []);
-        $result = $application->entityUpdateRecord('/update/', [
-            'id' => 1
-        ]);
-
-        // assertions
-        $this->assertStringContainsString('x_panel', $result['main']);
     }
 }
