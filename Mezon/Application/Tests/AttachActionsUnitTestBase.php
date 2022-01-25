@@ -22,6 +22,7 @@ class AttachActionsUnitTestBase extends TestCase
         }
         Layer::$redirectWasPerformed = false;
         Conf::setConfigStringValue('redirect/layer', 'mock');
+        Conf::setConfigStringValue('headers/layer', 'mock');
     }
 
     /**
